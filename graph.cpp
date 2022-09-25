@@ -103,6 +103,8 @@ class Graph {
         }
 
         // TODO generic dfs
+        // TODO (another class) dijkstra
+        // TODO is forest
         // TODO cache key computational results like dfs numbering and / or critical edges.
 
 
@@ -243,33 +245,22 @@ class Graph {
         }
 
 
-        // bool is_tree() {
-        //     if (!reachable_from())
-        //         return false;
-
-        //     if (directed)
-        //         return false;
-
-        //     // cycle detection
-        //     stack<int> dfs_stack;
-        //     vector<bool> seen(graph_size);
-
-        //     seen[0] = true;
-        //     dfs_stack.push(0);
-
-        //     while (!dfs_stack.empty()) {
-        //         int v = dfs_stack.top();
-        //         dfs_stack.pop();
-        //         for (int neighbor : g[v]) {
-        //             if (!seen[neighbor]) {
-        //                 seen[neighbor] = true;
-        //                 dfs_stack.push(neighbor);
-        //             }
-        //         }
-        //     }
-        //     return  std::accumulate(seen.begin(), seen.end(), 0) == graph_size;
-            
-        // }
+        /**
+         * Checks if an undirected graph is a tree. This is done by checking if the graph is connected and 
+         * has n-1 (undirected) edges.
+         * 
+         * @return a boolean value indicating if the graph is indeed a tree.
+         */
+        bool is_tree() {
+            assert(!directed);
+            if (!reachable_from(0)) 
+                return false;
+            int counter = 0;
+            for (auto item : g) 
+                counter += item.second.size();
+            counter /= 2; // since edges were double counted in previous loop
+            return counter == graph_size - 1;
+        }
 };
 
 bool Graph::verbose = false;
@@ -302,6 +293,18 @@ int main() {
     for (auto item : ce) {
         cout << "(" << item.first << ", " << item.second << ")\n";
     }
+
+    cout << "\nis G a tree? " << G.is_tree() << endl;
+    
+
+    vector<pair<int, int>> w;
+    w.push_back(make_pair(1,2));
+    w.push_back(make_pair(0,1));
+    w.push_back(make_pair(1,3));
+    w.push_back(make_pair(4,2));
+    w.push_back(make_pair(5,3));
+    Graph H(6, w, false);
+    cout << "is H a tree? " << H.is_tree() << endl;
 
     return 0;
 
