@@ -44,10 +44,12 @@ using std::min;
 using std::max;
 
 
-// TODO generic dfs
+// TODO generic dfs AND reduce code reuse.
 // TODO (another class) dijkstra
 // TODO is forest
 // TODO cache key computational results like dfs numbering and / or critical edges.
+// TODO Prufer Code
+// TODO lambda & management
 
 
 /**
@@ -70,7 +72,7 @@ Graph::Graph(int size, vector<pair<int, int>> edges, bool directed) {
 
 
 /**
- * performs a dfs to see if all components are reachable from a certain source.
+ * Performs a dfs to see if all components are reachable from a certain source.
  * 
  * @return a boolean value indicating if the entire graph is reachable from the given source.
  */
@@ -95,6 +97,47 @@ bool Graph::reachable_from(int source) {
     }
 
     return std::accumulate(seen.begin(), seen.end(), 0) == graph_size; // counts number of true in seen.
+}
+
+/**
+ * Counts the number of connected components in an undirected graph.
+ * 
+ * @return an integer indicating the number of connected components in a graph.
+ */
+int Graph::connected_component_count() {
+    assert(!directed);
+
+    stack<int> dfs_stack;
+    vector<bool> seen(graph_size);
+
+    // starts with the given vertex, and mark everything reachable as "seen".
+    // returns 
+    function<int(int)> mark_reached_vertices_from = [&](int source) -> int {
+        assert(dfs_stack.empty());
+        if (seen[source]) return 0;
+        seen[source] = true;
+        dfs_stack.push(source);
+
+        while (!dfs_stack.empty()) {
+            int v = dfs_stack.top();
+            dfs_stack.pop();
+            for (int neighbor : g[v]) {
+                if (!seen[neighbor]) {
+                    seen[neighbor] = true;
+                    dfs_stack.push(neighbor);
+                }
+            }
+        }
+
+        return 1;
+    };
+
+    int component_counter{ 0 };
+
+    for (int i = 0; i < graph_size; i++) component_counter += mark_reached_vertices_from(i);
+
+    return component_counter;
+
 }
 
 
@@ -233,6 +276,18 @@ void Graph::set_verbose(bool verbose_target_value) {
     verbose = verbose_target_value;
 }
 
+/**
+ * Counts the number of edges in a graph. Works for both directed and undirected graphs.
+ */
+int Graph::num_edges() {
+    int counter = 0;
+    for (auto item : g)
+        counter += item.second.size();
+    if (!directed)
+        counter /= 2;
+    return counter;
+}
+
 
 /**
  * Checks if an undirected graph is a tree. This is done by checking if the graph is connected and 
@@ -244,12 +299,19 @@ bool Graph::is_tree() {
     assert(!directed);
     if (!reachable_from(0)) 
         return false;
-    int counter = 0;
-    for (auto item : g) 
-        counter += item.second.size();
-    counter /= 2; // since edges were double counted in previous loop
-    return counter == graph_size - 1;
+    return num_edges() + 1 == graph_size;
 }
 
-bool Graph::verbose = false;
+/**
+ * Checks if an undirected graph is a forest. A forest is an undirected graph where each connected 
+ * component is a tree.
+ * 
+ * @return a boolean value indicating if the graph is indeed a forest.
+ */
+bool Graph::is_forest() {
+    assert(!directed);
+    return num_edges() + connected_component_count() == graph_size;  //place holder
+}
 
+
+bool Graph::verbose = false; // TODO implement verbose mode

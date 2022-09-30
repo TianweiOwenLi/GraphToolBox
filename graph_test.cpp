@@ -10,6 +10,8 @@ using std::make_pair;
 using std::cout;
 using std::endl;
 
+// TODO revise tester, increase comment / modularity.
+
 int main() {
     vector<pair<int, int>> v;
     v.push_back(make_pair(0,1));
@@ -49,6 +51,17 @@ int main() {
     w.push_back(make_pair(5,3));
     Graph H(6, w, false);
     cout << "is H a tree? " << H.is_tree() << endl;
+
+    vector<pair<int, int>> x;
+    x.push_back(make_pair(0,1));
+    x.push_back(make_pair(3,4));
+    x.push_back(make_pair(6,7));
+    x.push_back(make_pair(7,5));
+    x.push_back(make_pair(7,8));
+    x.push_back(make_pair(8,6));
+    Graph I(10, x, false);
+    cout << "number of connected components in I is " << I.connected_component_count() << endl;
+    cout << "Is I a forest? " << I.is_forest() << endl;
 
     return 0;
 
