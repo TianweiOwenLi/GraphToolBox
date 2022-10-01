@@ -46,7 +46,7 @@ using std::max;
 
 // TODO generic dfs AND reduce code reuse.
 // TODO (another class) dijkstra
-// TODO is forest
+// TODO implement fast mode (ie. no assert).
 // TODO cache key computational results like dfs numbering and / or critical edges.
 // TODO Prufer Code
 // TODO lambda & management
@@ -72,19 +72,32 @@ Graph::Graph(int size, vector<pair<int, int>> edges, bool directed) {
 
 
 /**
- * Performs a dfs to see if all components are reachable from a certain source.
+ * Performs a dfs to see if all components are reachable from a certain source vertex.
  * 
  * @return a boolean value indicating if the entire graph is reachable from the given source.
  */
 bool Graph::reachable_from(int source) {
     assert(source >= 0 && source < graph_size);
 
-    stack<int> dfs_stack;
     vector<bool> seen(graph_size);
+    reachability_dfs(seen, source);
 
-    seen[0] = true;
+    return std::accumulate(seen.begin(), seen.end(), 0) == graph_size; // counts number of true in seen.
+}
+
+
+/**
+ * Starts with the given vertex, and mark everything reachable as "seen". Note that the list of "seen" 
+ * vertices can be preserved between subsequent calls to this function, via passing a ref to vector as 
+ * a function argument.
+ * 
+ * @return an integer indicating if the passed-in source vertex is already seen, as recorded by the first 
+ * argument ref to vector. Specifically, 0 indicates already seen, and 1 indicates otherwise. 
+ */
+int Graph::reachability_dfs(vector<bool> &seen, int source) {
+    if (seen[source]) return 0;
+    stack<int> dfs_stack;
     dfs_stack.push(source);
-
     while (!dfs_stack.empty()) {
         int v = dfs_stack.top();
         dfs_stack.pop();
@@ -96,8 +109,9 @@ bool Graph::reachable_from(int source) {
         }
     }
 
-    return std::accumulate(seen.begin(), seen.end(), 0) == graph_size; // counts number of true in seen.
+    return 1;
 }
+
 
 /**
  * Counts the number of connected components in an undirected graph.
@@ -107,37 +121,13 @@ bool Graph::reachable_from(int source) {
 int Graph::connected_component_count() {
     assert(!directed);
 
-    stack<int> dfs_stack;
     vector<bool> seen(graph_size);
 
-    // starts with the given vertex, and mark everything reachable as "seen".
-    // returns 
-    function<int(int)> mark_reached_vertices_from = [&](int source) -> int {
-        assert(dfs_stack.empty());
-        if (seen[source]) return 0;
-        seen[source] = true;
-        dfs_stack.push(source);
-
-        while (!dfs_stack.empty()) {
-            int v = dfs_stack.top();
-            dfs_stack.pop();
-            for (int neighbor : g[v]) {
-                if (!seen[neighbor]) {
-                    seen[neighbor] = true;
-                    dfs_stack.push(neighbor);
-                }
-            }
-        }
-
-        return 1;
-    };
-
     int component_counter{ 0 };
-
-    for (int i = 0; i < graph_size; i++) component_counter += mark_reached_vertices_from(i);
+    for (int i = 0; i < graph_size; i++) 
+        component_counter += reachability_dfs(seen, i);
 
     return component_counter;
-
 }
 
 

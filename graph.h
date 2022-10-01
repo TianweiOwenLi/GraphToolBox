@@ -16,6 +16,8 @@ class Graph {
     
     static bool verbose;
 
+    int reachability_dfs(vector<bool> &seen, int source);
+
     public: 
         Graph(int size, vector<pair<int, int>> edges, bool directed);
         bool reachable_from(int source);

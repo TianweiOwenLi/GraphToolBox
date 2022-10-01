@@ -23,7 +23,7 @@ int main() {
     Graph G(6, v, false);
     Graph::set_verbose(true);
 
-    cout << std::boolalpha << G.reachable_from(0) << endl;
+    cout << "G is reachable from 0? " << std::boolalpha << G.reachable_from(0) << endl;
     auto timestamps = G.dfs_num();
     auto vertex = 0;
     cout << "dfs numbering: \n";
