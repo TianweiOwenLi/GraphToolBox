@@ -50,12 +50,20 @@ using std::max;
 // TODO cache key computational results like dfs numbering and / or critical edges.
 // TODO Prufer Code
 // TODO lambda & management
+// TODO enable get/set augmentation, as well as augmentations safe initialization.
+// TODO enable edit graph.
+// TODO resolve the issue where compiler does not generate code for template type.
+
+
+// for passing test cases.
+template class Graph<void*, void*>;
 
 
 /**
  * A class for unweighted enumerable graphs.
  */
-Graph::Graph(int size, vector<pair<int, int>> edges, bool directed) {
+template<typename Tv, typename Te>
+Graph<Tv, Te>::Graph(int size, vector<pair<int, int>> edges, bool directed) {
     assert(size > 0);
     for (auto e : edges) {
         // identify self-edges, as well as vertices with bad values.
@@ -76,7 +84,8 @@ Graph::Graph(int size, vector<pair<int, int>> edges, bool directed) {
  * 
  * @return a boolean value indicating if the entire graph is reachable from the given source.
  */
-bool Graph::reachable_from(int source) {
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::reachable_from(int source) {
     assert(source >= 0 && source < graph_size);
 
     vector<bool> seen(graph_size);
@@ -94,7 +103,8 @@ bool Graph::reachable_from(int source) {
  * @return an integer indicating if the passed-in source vertex is already seen, as recorded by the first 
  * argument ref to vector. Specifically, 0 indicates already seen, and 1 indicates otherwise. 
  */
-int Graph::reachability_dfs(vector<bool> &seen, int source) {
+template<typename Tv, typename Te>
+int Graph<Tv, Te>::reachability_dfs(vector<bool> &seen, int source) {
     if (seen[source]) return 0;
     stack<int> dfs_stack;
     dfs_stack.push(source);
@@ -118,7 +128,8 @@ int Graph::reachability_dfs(vector<bool> &seen, int source) {
  * 
  * @return an integer indicating the number of connected components in a graph.
  */
-int Graph::connected_component_count() {
+template<typename Tv, typename Te>
+int Graph<Tv, Te>::connected_component_count() {
     assert(!directed);
 
     vector<bool> seen(graph_size);
@@ -136,7 +147,8 @@ int Graph::connected_component_count() {
  * 
  * @return a vector of pairs of integers, with the ith pair is the (visit, finish) time stamp for vertex i.
  */
-vector<pair<int, int>> Graph::dfs_num() {
+template<typename Tv, typename Te>
+vector<pair<int, int>> Graph<Tv, Te>::dfs_num() {
     vector<bool> seen(graph_size);
     int current_time = 0;
     vector<pair<int, int>> timestamps(graph_size);
@@ -167,7 +179,8 @@ vector<pair<int, int>> Graph::dfs_num() {
  * 
  * @return a vector of all identified critical edges.
  */
-vector<pair<int, int>> Graph::critical_edges(){
+template<typename Tv, typename Te>
+vector<pair<int, int>> Graph<Tv, Te>::critical_edges(){
     assert(! this->directed);
     vector<pair<int, int>> num = dfs_num();
 
@@ -231,7 +244,8 @@ vector<pair<int, int>> Graph::critical_edges(){
  * 
  * @return a boolean value indicating the presence of any cycle.
  */
-bool Graph::has_directed_cycle() {
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::has_directed_cycle() {
     assert(directed);
     auto timestamps = dfs_num();
     for (auto item : g) {
@@ -251,25 +265,40 @@ bool Graph::has_directed_cycle() {
  * 
  * @return a boolean value indicating the presence of any critical edge. 
  */
-bool Graph::has_critical_edge() {
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::has_critical_edge() {
     auto e = critical_edges();
     return !e.empty();
 }
 
 
-bool Graph::get_verbose() {
+/**
+ * Checks if the verbose mode is enabled for this particular graph.
+ * 
+ * @return a boolean indicating if the verbose mode is enabled for this graph.
+ */
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::get_verbose() {
     return verbose;
 }
 
 
-void Graph::set_verbose(bool verbose_target_value) {
+/**
+ * Sets the verbose mode for this graph.
+ * 
+ * @return nothing
+ */
+template<typename Tv, typename Te>
+void Graph<Tv, Te>::set_verbose(bool verbose_target_value) {
     verbose = verbose_target_value;
 }
+
 
 /**
  * Counts the number of edges in a graph. Works for both directed and undirected graphs.
  */
-int Graph::num_edges() {
+template<typename Tv, typename Te>
+int Graph<Tv, Te>::num_edges() {
     int counter = 0;
     for (auto item : g)
         counter += item.second.size();
@@ -285,12 +314,14 @@ int Graph::num_edges() {
  * 
  * @return a boolean value indicating if the graph is indeed a tree.
  */
-bool Graph::is_tree() {
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::is_tree() {
     assert(!directed);
     if (!reachable_from(0)) 
         return false;
     return num_edges() + 1 == graph_size;
 }
+
 
 /**
  * Checks if an undirected graph is a forest. A forest is an undirected graph where each connected 
@@ -298,10 +329,9 @@ bool Graph::is_tree() {
  * 
  * @return a boolean value indicating if the graph is indeed a forest.
  */
-bool Graph::is_forest() {
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::is_forest() {
     assert(!directed);
     return num_edges() + connected_component_count() == graph_size;  //place holder
 }
 
-
-bool Graph::verbose = false; // TODO implement verbose mode

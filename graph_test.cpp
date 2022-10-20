@@ -20,8 +20,8 @@ int main() {
     v.push_back(make_pair(3,4));
     v.push_back(make_pair(5,2));
     v.push_back(make_pair(2,3));
-    Graph G(6, v, false);
-    Graph::set_verbose(true);
+    Graph<void*, void*> G(6, v, false);
+    G.set_verbose(true);
 
     cout << "G is reachable from 0? " << std::boolalpha << G.reachable_from(0) << endl;
     auto timestamps = G.dfs_num();
@@ -49,7 +49,7 @@ int main() {
     w.push_back(make_pair(1,3));
     w.push_back(make_pair(4,2));
     w.push_back(make_pair(5,3));
-    Graph H(6, w, false);
+    Graph<void*, void*> H(6, w, false);
     cout << "is H a tree? " << H.is_tree() << endl;
 
     vector<pair<int, int>> x;
@@ -59,7 +59,7 @@ int main() {
     x.push_back(make_pair(7,5));
     x.push_back(make_pair(7,8));
     x.push_back(make_pair(8,6));
-    Graph I(10, x, false);
+    Graph<void*, void*> I(10, x, false);
     cout << "number of connected components in I is " << I.connected_component_count() << endl;
     cout << "Is I a forest? " << I.is_forest() << endl;
 
