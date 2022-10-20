@@ -53,6 +53,7 @@ using std::max;
 // TODO enable get/set augmentation, as well as augmentations safe initialization.
 // TODO enable edit graph.
 // TODO resolve the issue where compiler does not generate code for template type.
+// TODO change graph instantiate routine, so that disconnected vertices are allowed.
 
 
 // for passing test cases.
@@ -291,6 +292,32 @@ bool Graph<Tv, Te>::get_verbose() {
 template<typename Tv, typename Te>
 void Graph<Tv, Te>::set_verbose(bool verbose_target_value) {
     verbose = verbose_target_value;
+}
+
+
+/**
+ * Tests if graph has a vertex. 
+ * 
+ * TODO test case.
+ * 
+ * @return a boolean indicating presence of a vertex. 
+ */
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::has_vertex(int v) {
+    return g.contains(v);
+}
+
+
+/**
+ * Tests if graph has an edge. 
+ * 
+ * TODO test case.
+ * 
+ * @return a boolean indicating presence of an edge. 
+ */
+template<typename Tv, typename Te>
+bool Graph<Tv, Te>::has_edge(int u, int v) {
+    return g.contains(u) && g[u].contains(v);
 }
 
 
