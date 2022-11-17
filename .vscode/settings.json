@@ -8,6 +8,8 @@
         "istream": "cpp",
         "numeric": "cpp",
         "streambuf": "cpp",
-        "unordered_map": "cpp"
+        "unordered_map": "cpp",
+        "queue": "cpp",
+        "functional": "cpp"
     }
 }

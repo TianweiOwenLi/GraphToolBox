@@ -2,7 +2,7 @@
 #include <vector>
 #include <iostream>
 
-#include "graph.h"
+#include "graph.cpp"
 
 using std::vector;
 using std::pair;
@@ -10,9 +10,9 @@ using std::make_pair;
 using std::cout;
 using std::endl;
 
-// TODO revise tester, increase comment / modularity.
-
 int main() {
+
+
     vector<pair<int, int>> v;
     v.push_back(make_pair(0,1));
     v.push_back(make_pair(1,2));
@@ -62,6 +62,38 @@ int main() {
     Graph<void*, void*> I(10, x, false);
     cout << "number of connected components in I is " << I.connected_component_count() << endl;
     cout << "Is I a forest? " << I.is_forest() << endl;
+
+
+    /* graph data augmentation test */
+    cout << "\nTesting augmentation: " << endl;
+
+    typedef struct VertexStruct {
+        bool happy;
+        VertexStruct(): happy(false) {}
+    } vertex_type;
+
+    typedef struct EdgeStruct {
+        double flow;
+        double cost;
+        EdgeStruct(): flow(0.0), cost(4.0) {}
+    } edge_type;
+
+    vector<pair<int, int>> vJ{{0,1}, {2,0}};
+    Graph<vertex_type, edge_type> J(3, vJ, true);
+    J.ptr_to_vertex_data(0)->happy = true;
+    auto ptr_to_2 = J.ptr_to_vertex_data(2);
+    ptr_to_2->happy = true;
+    J.ptr_to_edge_data(2,0)->flow = 3.5;
+    assert(J.ptr_to_vertex_data(0)->happy);
+    assert(!J.ptr_to_vertex_data(1)->happy);
+    assert(J.ptr_to_vertex_data(2)->happy);
+    auto vale1 = J.ptr_to_edge_data(2,0)->flow;
+    auto vale2 = J.ptr_to_edge_data(0,1)->cost;
+    assert(vale1 > 3.49 && vale1 < 3.51);
+    assert(vale2 > 3.9 && vale2 < 4.1);
+
+    cout << "\nAll Tests Passed! \n";
+
 
     return 0;
 

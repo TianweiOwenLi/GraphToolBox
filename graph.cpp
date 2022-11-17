@@ -56,9 +56,6 @@ using std::max;
 // TODO change graph instantiate routine, so that disconnected vertices are allowed.
 
 
-// for passing test cases.
-template class Graph<void*, void*>;
-
 
 /**
  * A class for unweighted enumerable graphs.
@@ -72,11 +69,18 @@ Graph<Tv, Te>::Graph(int size, vector<pair<int, int>> edges, bool directed) {
         assert(e.first >= 0 && e.second >= 0 && e.first < size && e.second < size);
 
         g[e.first].insert(e.second);
-        if (!directed)
+        if (directed) {
+            edge_augmentation[e.first][e.second] = Te();
+        } else {
             g[e.second].insert(e.first);
+            auto smaller = min(e.first, e.second), greater = max(e.first, e.second);
+            edge_augmentation[smaller][greater] = Te();
+        }
     }
     graph_size = size;
     this->directed = directed;
+
+    vertex_augmentation = vector<Tv>(graph_size);
 }
 
 
@@ -359,6 +363,31 @@ bool Graph<Tv, Te>::is_tree() {
 template<typename Tv, typename Te>
 bool Graph<Tv, Te>::is_forest() {
     assert(!directed);
-    return num_edges() + connected_component_count() == graph_size;  //place holder
+    return num_edges() + connected_component_count() == graph_size; 
 }
 
+/**
+ * Returns a pointer to the data of some vertex.
+ * 
+ * @param v an integer representing the target vertex.
+ * @return the pointer to the data of vertex 
+*/
+template <typename Tv, typename Te>
+Tv* Graph<Tv, Te>::ptr_to_vertex_data(int v) {
+    return &vertex_augmentation[v];
+}
+
+/**
+ * Returns a pointer to the data of some edge (u,v).
+ * 
+ * @param u the first vertex of such an edge.
+*/
+template <typename Tv, typename Te>
+Te* Graph<Tv, Te>::ptr_to_edge_data(int u, int v) {
+    if (directed) {
+        return &edge_augmentation[u][v];
+    } else {
+        auto smaller = min(u,v), greater = max(u,v);
+        return &edge_augmentation[smaller][greater];
+    }
+}

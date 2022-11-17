@@ -4,16 +4,18 @@
 #include <vector>
 #include <unordered_set>
 #include <unordered_map>
+#include <functional>
 
 using std::vector;
 using std::pair;
+using std::function;
+
 
 template<typename T_vertex, typename T_edge> class Graph {
 
     std::unordered_map<int, std::unordered_set<int>> g;
     int graph_size;
     bool directed;
-    
     bool verbose;
 
     // vertex and edge augmentation.
@@ -25,7 +27,7 @@ template<typename T_vertex, typename T_edge> class Graph {
     int reachability_dfs(vector<bool> &seen, int source);
 
     public: 
-        Graph(int size, vector<pair<int, int>> edges, bool directed);
+        Graph(int size, vector<pair<int, int>> edge, bool is_directed);
         bool reachable_from(int source);
         int connected_component_count();
         vector<pair<int, int>> dfs_num();
@@ -39,6 +41,8 @@ template<typename T_vertex, typename T_edge> class Graph {
         int num_edges();
         bool is_tree();
         bool is_forest();
+        T_vertex* ptr_to_vertex_data(int v);
+        T_edge* ptr_to_edge_data(int u, int v);
 };
 
 #endif
