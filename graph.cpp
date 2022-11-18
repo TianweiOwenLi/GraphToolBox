@@ -50,15 +50,13 @@ using std::max;
 // TODO cache key computational results like dfs numbering and / or critical edges.
 // TODO Prufer Code
 // TODO lambda & management
-// TODO enable get/set augmentation, as well as augmentations safe initialization.
 // TODO enable edit graph.
-// TODO resolve the issue where compiler does not generate code for template type.
-// TODO change graph instantiate routine, so that disconnected vertices are allowed.
+// TODO check graph equality
 
 
 
 /**
- * A class for unweighted enumerable graphs.
+ * A class for augmentable enumerable graphs.
  */
 template<typename Tv, typename Te>
 Graph<Tv, Te>::Graph(int size, vector<pair<int, int>> edges, bool directed) {

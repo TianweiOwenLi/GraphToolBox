@@ -10,89 +10,83 @@ using std::make_pair;
 using std::cout;
 using std::endl;
 
+typedef struct{} unit;
+
+typedef struct VertexStruct {
+    bool happy;
+    VertexStruct(): happy(false) {}
+} vertex_type;
+
+typedef struct EdgeStruct {
+    double flow;
+    double cost;
+    EdgeStruct(): flow(0.0), cost(4.0) {}
+} edge_type;
+
+
+bool vec_has_undir_edge(vector<pair<int, int>>& vec, pair<int, int> edge) {
+    for (auto e : vec) {
+        if (e.first == edge.second && e.second == edge.first)
+            return true;
+        if (e.first == edge.first && e.second == edge.second)
+            return true;
+    }
+
+    return false;
+}
+
+
 int main() {
 
+    cout << "\n[GraphToolBox] Performing unit tests: \n" << endl;
 
-    vector<pair<int, int>> v;
-    v.push_back(make_pair(0,1));
-    v.push_back(make_pair(1,2));
-    v.push_back(make_pair(3,1));
-    v.push_back(make_pair(3,4));
-    v.push_back(make_pair(5,2));
-    v.push_back(make_pair(2,3));
-    Graph<void*, void*> G(6, v, false);
-    G.set_verbose(true);
+    cout << "Testing graph reachability" << endl;
+    Graph<unit, unit> G(6, {{0,1}, {1,2}, {3,1}, {3,4}, {5,2}, {2,3}}, false);
+    assert(G.reachable_from(0));
 
-    cout << "G is reachable from 0? " << std::boolalpha << G.reachable_from(0) << endl;
+    cout << "Testing DFS numbering" << endl;
     auto timestamps = G.dfs_num();
-    auto vertex = 0;
-    cout << "dfs numbering: \n";
-    for (auto item : timestamps) {
-        cout << vertex << ": (" << item.first << ", " << item.second << ")\n";
-        vertex++;
-    }
+    vector<pair<int, int>> timestamps_refsol \
+            {{0,11},{1,10},{3,6},{2,9},{7,8},{4,5}};
+    assert(timestamps == timestamps_refsol);
 
-    cout << "\ncritical edge detection: \n";
-    // cout << std::boolalpha << G.has_critical_edge() << endl;
+    cout << "Testing critical edge detection";
     auto ce = G.critical_edges();
-    cout << "\nfound ones:\n";
-    for (auto item : ce) {
-        cout << "(" << item.first << ", " << item.second << ")\n";
-    }
+    assert(ce.size() == 3);
+    assert(vec_has_undir_edge(ce, {0,1}));
+    assert(vec_has_undir_edge(ce, {2,5}));
+    assert(vec_has_undir_edge(ce, {4,3}));
 
-    cout << "\nis G a tree? " << G.is_tree() << endl;
+
+    cout << "\nTesting trees, forests and connected componentes" << endl;
     
+    assert(!G.is_tree());
 
-    vector<pair<int, int>> w;
-    w.push_back(make_pair(1,2));
-    w.push_back(make_pair(0,1));
-    w.push_back(make_pair(1,3));
-    w.push_back(make_pair(4,2));
-    w.push_back(make_pair(5,3));
-    Graph<void*, void*> H(6, w, false);
-    cout << "is H a tree? " << H.is_tree() << endl;
+    Graph<unit, unit> H(6, {{1,2}, {0,1}, {1,3}, {4,2}, {5,3}}, false);
+    assert(H.is_tree());
+    assert(H.is_forest());
 
-    vector<pair<int, int>> x;
-    x.push_back(make_pair(0,1));
-    x.push_back(make_pair(3,4));
-    x.push_back(make_pair(6,7));
-    x.push_back(make_pair(7,5));
-    x.push_back(make_pair(7,8));
-    x.push_back(make_pair(8,6));
-    Graph<void*, void*> I(10, x, false);
-    cout << "number of connected components in I is " << I.connected_component_count() << endl;
-    cout << "Is I a forest? " << I.is_forest() << endl;
+    Graph<unit, unit> I1(10, {{0,1}, {3,4}, {6,7}, {7,5}, {7,8}, {8,6}}, false);
+    Graph<unit, unit> I2(10, {{0,1}, {3,4}, {9,7}, {7,5}, {7,8}, {8,6}}, false);
+    assert(I1.connected_component_count() == 5);
+    assert(!I1.is_forest());
+    assert(I2.is_forest());
 
 
-    /* graph data augmentation test */
-    cout << "\nTesting augmentation: " << endl;
+    cout << "Testing vertex and edge data augmentations" << endl;
 
-    typedef struct VertexStruct {
-        bool happy;
-        VertexStruct(): happy(false) {}
-    } vertex_type;
-
-    typedef struct EdgeStruct {
-        double flow;
-        double cost;
-        EdgeStruct(): flow(0.0), cost(4.0) {}
-    } edge_type;
-
-    vector<pair<int, int>> vJ{{0,1}, {2,0}};
-    Graph<vertex_type, edge_type> J(3, vJ, true);
+    Graph<vertex_type, edge_type> J(3, {{0,1}, {2,0}}, true);
     J.ptr_to_vertex_data(0)->happy = true;
-    auto ptr_to_2 = J.ptr_to_vertex_data(2);
-    ptr_to_2->happy = true;
     J.ptr_to_edge_data(2,0)->flow = 3.5;
     assert(J.ptr_to_vertex_data(0)->happy);
     assert(!J.ptr_to_vertex_data(1)->happy);
-    assert(J.ptr_to_vertex_data(2)->happy);
+    assert(!J.ptr_to_vertex_data(2)->happy);
     auto vale1 = J.ptr_to_edge_data(2,0)->flow;
     auto vale2 = J.ptr_to_edge_data(0,1)->cost;
     assert(vale1 > 3.49 && vale1 < 3.51);
     assert(vale2 > 3.9 && vale2 < 4.1);
 
-    cout << "\nAll Tests Passed! \n";
+    cout << "\nAll Tests Passed! \n\n";
 
 
     return 0;
